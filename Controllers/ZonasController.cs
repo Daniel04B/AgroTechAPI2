@@ -199,6 +199,7 @@ namespace AgroTechAPI.Controllers
                 return StatusCode(500,
                     $"Error al eliminar zona: {ex.Message}");
             }
+           
         }
     }
 }
