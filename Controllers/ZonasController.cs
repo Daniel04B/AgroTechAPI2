@@ -2,6 +2,7 @@
 using AgroTechAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace AgroTechAPI.Controllers
 {
@@ -14,6 +15,14 @@ namespace AgroTechAPI.Controllers
         public ZonasController(AgroTechContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("usuario/{agricultorId}")]
+        public async Task<ActionResult<IEnumerable<Zona>>> GetZonasPorUsuario(int agricultorId)
+        {
+            return await _context.Zonas
+                .Where(z => z.AgricultorId == agricultorId)
+                .ToListAsync();
         }
 
         // =========================================
@@ -56,6 +65,16 @@ namespace AgroTechAPI.Controllers
                 return StatusCode(500,
                     $"Error interno del servidor: {ex.Message}");
             }
+        }
+
+        [HttpGet("agricultor/{agricultorId}")]
+        public async Task<ActionResult<IEnumerable<Zona>>> GetZonasPorAgricultor(int agricultorId)
+        {
+            var zonas = await _context.Zonas
+                .Where(z => z.AgricultorId == agricultorId)
+                .ToListAsync();
+
+            return zonas;
         }
 
         // =========================================

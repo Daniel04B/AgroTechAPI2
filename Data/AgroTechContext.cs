@@ -16,5 +16,7 @@ namespace AgroTechAPI.Data
         public DbSet<Zona> Zonas { get; set; }
 
         public DbSet<LecturaSensor> Lecturas { get; set; }
+
+        public DbSet<Sensor> Sensores { get; set; }
     }
 }

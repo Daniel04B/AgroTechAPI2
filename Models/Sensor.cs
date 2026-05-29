@@ -1,23 +1,32 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgroTechAPI.Models
 {
+    [Table("Sensor")]
     public class Sensor
     {
         [Key]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "El nombre es obligatorio")]
-        [StringLength(30, ErrorMessage = "Máximo 30 caracteres")]
+        [Required]
+        [StringLength(100)]
         public string Nombre { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Selecciona un tipo")]
+        [Required]
+        [StringLength(50)]
         public string Tipo { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La ubicación es requerida")]
+        [Required]
+        [StringLength(150)]
         public string Ubicacion { get; set; } = string.Empty;
 
-        [Range(0.0, 100.0, ErrorMessage = "Debe ser entre 0 y 100")]
-        public double ValorCalibracion { get; set; }
+        public decimal? ValorCalibracion { get; set; }
+
+        public decimal? ValorActual { get; set; }
+
+        public DateTime? FechaLectura { get; set; }
+
+        public int? AgricultorId { get; set; }
     }
 }

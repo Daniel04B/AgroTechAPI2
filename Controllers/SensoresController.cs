@@ -1,5 +1,7 @@
-﻿using AgroTechAPI.Models;
+﻿using AgroTechAPI.Data;
+using AgroTechAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AgroTechAPI.Controllers
 {
@@ -7,144 +9,96 @@ namespace AgroTechAPI.Controllers
     [Route("api/[controller]")]
     public class SensoresController : ControllerBase
     {
-        private static readonly List<Sensor> _dbSensores = new()
+        private readonly AgroTechContext _context;
+
+        public SensoresController(AgroTechContext context)
         {
-            new Sensor
-            {
-                Id = 1,
-                Nombre = "SE-HUM-01",
-                Tipo = "Humedad",
-                Ubicacion = "Lote Norte",
-                ValorCalibracion = 45.2
-            },
+            _context = context;
+        }
 
-            new Sensor
-            {
-                Id = 2,
-                Nombre = "SE-TMP-02",
-                Tipo = "Temperatura",
-                Ubicacion = "Invernadero",
-                ValorCalibracion = 24.8
-            }
-        };
-
-        // =========================================
-        // GET
-        // =========================================
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<IEnumerable<Sensor>>> GetSensores()
         {
-            try
-            {
-                return Ok(_dbSensores);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500,
-                    $"Error interno: {ex.Message}");
-            }
+            return await _context.Sensores.ToListAsync();
         }
 
-        // =========================================
-        // POST
-        // =========================================
+        [HttpGet("usuario/{agricultorId}")]
+        public async Task<ActionResult<IEnumerable<Sensor>>> GetSensoresPorUsuario(int agricultorId)
+        {
+            return await _context.Sensores
+                .Where(x => x.AgricultorId == agricultorId)
+                .ToListAsync();
+        }
+
         [HttpPost]
-        public IActionResult Post([FromBody] Sensor nuevoSensor)
+        public async Task<IActionResult> PostSensor(Sensor sensor)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                if (string.IsNullOrWhiteSpace(sensor.Nombre))
+                    return BadRequest("Nombre obligatorio.");
 
-                if (string.IsNullOrWhiteSpace(
-                    nuevoSensor.Nombre))
-                {
-                    return BadRequest(
-                        "El nombre es obligatorio.");
-                }
+                if (string.IsNullOrWhiteSpace(sensor.Tipo))
+                    return BadRequest("Tipo obligatorio.");
 
-                nuevoSensor.Id =
-                    _dbSensores.Any()
-                    ? _dbSensores.Max(s => s.Id) + 1
-                    : 1;
+                if (string.IsNullOrWhiteSpace(sensor.Ubicacion))
+                    return BadRequest("Ubicación obligatoria.");
 
-                _dbSensores.Add(nuevoSensor);
+                _context.Sensores.Add(sensor);
 
-                return Ok(nuevoSensor);
+                await _context.SaveChangesAsync();
+
+                return Ok(sensor);
             }
             catch (Exception ex)
             {
-                return StatusCode(500,
-                    $"Error al registrar sensor: {ex.Message}");
+                return BadRequest(ex.Message);
             }
         }
 
-        // =========================================
-        // PUT
-        // =========================================
         [HttpPut("{id}")]
-        public IActionResult Put(
-            int id,
-            [FromBody] Sensor sensorEditado)
+        public async Task<IActionResult> PutSensor(int id, Sensor sensor)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                if (id != sensor.Id)
+                    return BadRequest("ID inválido.");
 
                 var existente =
-                    _dbSensores.FirstOrDefault(s => s.Id == id);
+                    await _context.Sensores.FindAsync(id);
 
                 if (existente == null)
-                    return NotFound(
-                        "Sensor no encontrado.");
+                    return NotFound("Sensor no encontrado.");
 
-                existente.Nombre =
-                    sensorEditado.Nombre;
+                existente.Nombre = sensor.Nombre;
+                existente.Tipo = sensor.Tipo;
+                existente.Ubicacion = sensor.Ubicacion;
+                existente.ValorCalibracion = sensor.ValorCalibracion;
+                existente.AgricultorId = sensor.AgricultorId;
 
-                existente.Tipo =
-                    sensorEditado.Tipo;
+                await _context.SaveChangesAsync();
 
-                existente.Ubicacion =
-                    sensorEditado.Ubicacion;
-
-                existente.ValorCalibracion =
-                    sensorEditado.ValorCalibracion;
-
-                return Ok(existente);
+                return Ok("Sensor actualizado.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500,
-                    $"Error al actualizar: {ex.Message}");
+                return BadRequest(ex.Message);
             }
         }
 
-        // =========================================
-        // DELETE
-        // =========================================
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> DeleteSensor(int id)
         {
-            try
-            {
-                var existente =
-                    _dbSensores.FirstOrDefault(s => s.Id == id);
+            var sensor = await _context.Sensores.FindAsync(id);
 
-                if (existente == null)
-                    return NotFound(
-                        "Sensor no encontrado.");
+            if (sensor == null)
+                return NotFound();
 
-                _dbSensores.Remove(existente);
+            _context.Sensores.Remove(sensor);
 
-                return Ok(
-                    "Sensor eliminado.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500,
-                    $"Error al eliminar: {ex.Message}");
-            }
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
