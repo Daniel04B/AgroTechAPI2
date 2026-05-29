@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace AgroTechAPI.Models
 {
+
     [Table("Agricultor")]
     public class Agricultor
     {
