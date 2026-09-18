@@ -1,5 +1,6 @@
 ﻿using AgroTechAPI.Data;
 using AgroTechAPI.Models;
+using AgroTechAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,14 +11,18 @@ namespace AgroTechAPI.Controllers
     public class AgricultoresController : ControllerBase
     {
         private readonly AgroTechContext _context;
+        private readonly JwtService _jwtService;
 
-        public AgricultoresController(AgroTechContext context)
+        public AgricultoresController(
+            AgroTechContext context,
+            JwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
         // =========================================
-        // GET: api/agricultores
+        // GET: api/Agricultores
         // =========================================
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Agricultor>>> GetAgricultores()
@@ -110,16 +115,17 @@ namespace AgroTechAPI.Controllers
                 // ROL POR DEFECTO
                 // Validar roles permitidos
 
-                if (string.IsNullOrEmpty(agricultor.Rol))
-                {
-                    agricultor.Rol = "Usuario";
-                }
+                //if (string.IsNullOrEmpty(agricultor.Rol))
+                //{
+                //    agricultor.Rol = "Usuario";
+                //}
 
-                if (agricultor.Rol != "Admin" &&
-                    agricultor.Rol != "Usuario")
-                {
-                    return BadRequest("Rol inválido.");
-                }
+                //if (agricultor.Rol != "Admin" &&
+                //    agricultor.Rol != "Usuario")
+                //{
+                //    return BadRequest("Rol inválido.");
+                //}
+                agricultor.Rol = "Usuario";
 
                 _context.Agricultor.Add(agricultor);
 
@@ -182,9 +188,17 @@ namespace AgroTechAPI.Controllers
                     return Unauthorized(
                         "Usuario o contraseña incorrectos.");
 
-                agricultor.Contrasena = "";
+                var token =
+                    _jwtService.GenerarToken(agricultor);
 
-                return Ok(agricultor);
+                return Ok(new
+                {
+                    Token = token,
+                    Id = agricultor.Id,
+                    Nombre = agricultor.Nombre,
+                    Usuario = agricultor.Usuario,
+                    Rol = agricultor.Rol
+                });
             }
             catch (Exception ex)
             {

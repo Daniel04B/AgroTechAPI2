@@ -1,12 +1,14 @@
 ﻿using AgroTechAPI.Data;
 using AgroTechAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgroTechAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class LecturasController : ControllerBase
     {
         private readonly AgroTechContext _context;

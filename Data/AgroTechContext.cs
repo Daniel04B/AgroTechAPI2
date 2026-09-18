@@ -1,5 +1,6 @@
 ﻿using AgroTechAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using AgroTech.Models;
 
 namespace AgroTechAPI.Data
 {
@@ -10,6 +11,7 @@ namespace AgroTechAPI.Data
             : base(options)
         {
         }
+        public DbSet<Cultivo> Cultivos { get; set; }
 
         public DbSet<Agricultor> Agricultor { get; set; }
 

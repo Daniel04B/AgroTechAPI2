@@ -1,10 +1,12 @@
 ﻿using AgroTechAPI.Data;
 using AgroTechAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgroTechAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SensoresController : ControllerBase

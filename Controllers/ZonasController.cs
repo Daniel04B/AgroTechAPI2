@@ -1,13 +1,15 @@
 ﻿using AgroTechAPI.Data;
 using AgroTechAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace AgroTechAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class ZonasController : ControllerBase
     {
         private readonly AgroTechContext _context;
